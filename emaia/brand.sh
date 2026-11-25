@@ -15,4 +15,8 @@ sed -i "s|APP_NAME: RwLock<String> = RwLock::new(\"RustDesk\".to_owned())|APP_NA
 grep -q "\"$HOST\"" "$C" || { echo "server patch failed"; exit 1; }
 grep -q "$KEY" "$C" || { echo "key patch failed"; exit 1; }
 grep -q "\"$APP\".to_owned()" "$C" || { echo "app name patch failed"; exit 1; }
+# Remote screen always fits the window (upstream desktop default is "original" 1:1)
+sed -i 's|keys::OPTION_VIEW_STYLE => self.get_string(key, "original", vec!\["adaptive"\])|keys::OPTION_VIEW_STYLE => self.get_string(key, "adaptive", vec!["original"])|' "$C"
+if grep -q '"original", vec!\["adaptive"\]' "$C"; then echo "view style patch failed"; exit 1; fi
+
 echo "EMAIA branding applied"
