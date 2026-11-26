@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   push:
     branches: [emaia]
-    paths: ["emaia/**", ".github/workflows/emaia-windows.yml"]
+    paths: ["emaia/**", "libs/portable/**", ".github/workflows/emaia-windows.yml"]
 
 env:
   SCITER_RUST_VERSION: "1.75"
@@ -123,6 +123,8 @@ jobs:
           Remove-Item -Path usbmmidd_v2\Win32 -Recurse
           Remove-Item -Path "usbmmidd_v2\deviceinstaller64.exe", "usbmmidd_v2\deviceinstaller.exe", "usbmmidd_v2\usbmmidd.bat"
           mv -Force .\usbmmidd_v2 ./rustdesk
+          # Own exe name -> own extraction folder (%LOCALAPPDATA%\emaiaremoto), no clash with stock RustDesk
+          mv ./rustdesk/rustdesk.exe ./rustdesk/EmaiaRemoto.exe
 
       - name: find Runner.res
         continue-on-error: true
@@ -143,7 +145,7 @@ jobs:
           sed -i '/dpiAware/d' res/manifest.xml
           pushd ./libs/portable
           pip3 install -r requirements.txt
-          python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/rustdesk.exe
+          python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/EmaiaRemoto.exe
           popd
           mkdir -p ./out
           mv ./target/release/rustdesk-portable-packer.exe ./out/EmaiaRemoto-${{ env.VERSION }}-x86_64.exe
