@@ -19,4 +19,12 @@ grep -q "\"$APP\".to_owned()" "$C" || { echo "app name patch failed"; exit 1; }
 sed -i 's|keys::OPTION_VIEW_STYLE => self.get_string(key, "original", vec!\["adaptive"\])|keys::OPTION_VIEW_STYLE => self.get_string(key, "adaptive", vec!["original"])|' "$C"
 if grep -q '"original", vec!\["adaptive"\]' "$C"; then echo "view style patch failed"; exit 1; fi
 
+# Hide upstream credit line and "set up your own server" tip (client-facing; EMAIA brand only)
+D=flutter/lib/common.dart
+sed -i 's|if (bind.mainGetBuildinOption(key: "hide-powered-by-me") == '"'"'Y'"'"') {|if (true) { // EMAIA: no provider credit in UI|' "$D"
+grep -q 'if (true) { // EMAIA: no provider credit in UI' "$D" || { echo "powered-by patch failed"; exit 1; }
+P=flutter/lib/desktop/pages/connection_page.dart
+sed -i 's|if (!isIncomingOnly) setupServerWidget(),|// EMAIA: own server is built in, no setup tip|' "$P"
+if grep -q 'if (!isIncomingOnly) setupServerWidget(),' "$P"; then echo "setup tip patch failed"; exit 1; fi
+
 echo "EMAIA branding applied"
